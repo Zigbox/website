@@ -1,0 +1,64 @@
+name: Deploy zigbox.org
+# Builds the whole of zigbox.org and deploys it to GitHub Pages.
+# Requires Settings -> Pages -> Source: GitHub Actions, and the custom domain zigbox.org.
+#
+# Layout (docs/decisions in Zigbox and Zigcube, 2026-11-04):
+#   /                 src/ in this repo
+#   /errors/box/      Zigbox's generated error pages (site/errors on Zigbox's main)
+#   /errors/cube/     Zigcube's generated error pages (site/errors on Zigcube's main)
+# The project sites (/zigbox/, /zigcube/) are served by their own repositories, not from here.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  repository_dispatch:
+    types: [site]
+  schedule:
+    - cron: "17 */6 * * *"
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: self
+      - uses: actions/checkout@v4
+        with:
+          repository: Zigbox/zigbox
+          ref: main
+          path: box
+          sparse-checkout: site/errors
+      - uses: actions/checkout@v4
+        with:
+          repository: Zigbox/zigcube
+          ref: main
+          path: cube
+          sparse-checkout: site/errors
+      - name: Assemble the site
+        run: |
+          set -eu
+          mkdir -p _site/errors/box _site/errors/cube
+          cp -R self/src/. _site/
+          cp box/site/errors/*.html _site/errors/box/
+          cp cube/site/errors/*.html _site/errors/cube/
+          touch _site/.nojekyll
+          echo "box:  $(ls _site/errors/box | wc -l) pages from Zigbox $(git -C box rev-parse --short HEAD)"
+          echo "cube: $(ls _site/errors/cube | wc -l) pages from Zigcube $(git -C cube rev-parse --short HEAD)"
+          test -s _site/errors/box/E0101.html
+          test -s _site/errors/cube/E0101.html
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

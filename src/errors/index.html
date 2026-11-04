@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Error Codes</title>
+<meta name="description" content="Every error and warning code Zigbox and Zigcube print, one page each.">
+<style>
+:root{--bg:#f6f5f1;--surface:#fff;--fg:#1d1b16;--muted:#6a6558;--line:#e2ded2;--accent:#9a5800;
+--display:"Helvetica Neue",Arial,sans-serif;--mono:ui-monospace,"SFMono-Regular",Menlo,monospace;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15140f;--surface:#1d1c17;--fg:#ece8dc;--muted:#a39d8c;--line:#2e2c25;--accent:#f2b13c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15140f;--surface:#1d1c17;--fg:#ece8dc;--muted:#a39d8c;--line:#2e2c25;--accent:#f2b13c;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--display);font-size:16px;line-height:1.55;margin:0}
+main{max-width:44rem;margin:0 auto;padding:3rem 16px}
+h1{font-size:clamp(2rem,6vw,2.8rem);margin:0 0 .5rem;line-height:1.1}
+h2{font-size:1.1rem;margin:2rem 0 .5rem}
+p{margin:.5rem 0} a{color:var(--accent)} a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+ul{padding-left:1.2rem} code{font-family:var(--mono);font-size:.9em}
+.muted{color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+<p class="muted"><a href="/">zigbox.org</a></p>
+<h1>Error codes</h1>
+<p>Every diagnostic Zigbox and Zigcube print ends with a link to its page here.</p>
+<ul>
+<li><a href="/errors/box/E0101.html">Zigbox</a>: codes such as <code>ZBX-E0101</code>, pages at <code>/errors/box/&lt;code&gt;.html</code></li>
+<li><a href="/errors/cube/E0101.html">Zigcube</a>: codes such as <code>ZC-E0101</code>, pages at <code>/errors/cube/&lt;code&gt;.html</code></li>
+</ul>
+</main>
+</body>
+</html>
