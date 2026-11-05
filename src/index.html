@@ -68,34 +68,26 @@ section{padding-block:48px;border-top:1px solid var(--line)}
 .card a.main::after{content:"";position:absolute;inset:0;border-radius:10px}
 .card .links a:not(.main){position:relative;z-index:1}
 .card:has(a.main:hover){border-color:var(--c)}
-.manifesto{display:grid;grid-template-columns:1fr 1fr;gap:28px 40px;counter-reset:art;list-style:none;padding:0;margin:0}
-.manifesto li{counter-increment:art;min-width:0;display:grid;grid-template-columns:2.6em 1fr;grid-template-rows:auto 1fr;gap:4px 12px;align-items:start}
-.manifesto li::before{content:counter(art,upper-roman);font-family:var(--mono);font-size:.8rem;color:var(--muted);border:1px solid var(--line);border-radius:6px;height:2em;display:grid;place-items:center;grid-row:span 2}
-.manifesto h3{font-size:1.1rem}
-.manifesto p{margin:0;color:var(--muted);font-size:.95rem}
-.coda{margin-top:36px;padding:20px 22px;border-left:3px solid var(--line);color:var(--muted);max-width:62ch;font-size:1.02rem}
-.coda strong{color:var(--fg);font-weight:600}
 .ref{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 .ref a{border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:var(--surface);text-decoration:none;color:var(--fg);display:flex;flex-direction:column;gap:4px;min-width:0}
 .ref a:hover{border-color:var(--muted)}
 .ref a span{color:var(--muted);font-size:.9rem}
 footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);font-size:.85rem}
 footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-@media (max-width:820px){.projects,.manifesto{grid-template-columns:1fr}.ref{grid-template-columns:1fr}.hero{padding-block:40px 32px}}
-@media (max-width:520px){nav{margin-left:0;width:100%}}
+@media (max-width:820px){.projects,@media (max-width:520px){nav{margin-left:0;width:100%}}
 </style>
 </head>
 <body>
 <header class="top"><div class="wrap">
   <a class="brand" href="/"><span class="marks" aria-hidden="true"><span class="mark"></span><span class="mark cube"></span></span>Zigbox</a>
-  <nav aria-label="Sections"><a href="#projects">Projects</a><a href="#manifesto">Manifesto</a><a href="/errors/">Error codes</a><a href="https://github.com/Zigbox">GitHub</a></nav>
+  <nav aria-label="Sections"><a href="#projects">Projects</a><a href="https://age-of-the-agent.com/">Manifesto</a><a href="/errors/">Error codes</a><a href="https://github.com/Zigbox">GitHub</a></nav>
 </div></header>
 
 <main class="wrap">
   <div class="hero">
     <p class="eyebrow">Zigbox · the organisation</p>
     <h1>Infrastructure software, made in the Age of the Agent.</h1>
-    <p class="lede">Agents write the code here and people decide what it is for. We work by a short manifesto of rules that make that combination produce software you can trust.</p>
+    <p class="lede">Agents write the code here and people decide what it is for. We work by a short <a href="https://age-of-the-agent.com/">manifesto</a> of rules that make that combination produce software you can trust.</p>
   </div>
 
   <section id="projects">
@@ -121,18 +113,8 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 
   <section id="manifesto">
     <div class="sec-head"><p class="eyebrow">How we work</p><h2>The Age of the Agent manifesto</h2>
-      <p>Writing code has become cheap. Trusting it has not. These articles are how we spend the difference.</p></div>
-    <ol class="manifesto">
-      <li><h3>Agents write; people decide.</h3><p>The owner sets direction and makes the calls. Every decision is written down, dated and filed on its own, and never edited once merged. A new decision replaces an old one by name.</p></li>
-      <li><h3>A claim is a recorded run.</h3><p>Nothing is done until its demo runs in CI, in real virtual machines. A green unit test is not a demo, and output we show as recorded links to the run that recorded it.</p></li>
-      <li><h3>Review by strangers.</h3><p>A fresh reviewer that never saw the author's reasoning reads every slice, looking for what is wrong. A release needs two such reviewers, neither shown the other's verdict.</p></li>
-      <li><h3>Simulate before you believe.</h3><p>Seeded simulations and fuzzers run around the clock. A failure is a seed, and a seed is a replay command, so nobody has to rely on remembering a bug.</p></li>
-      <li><h3>Context is a budget.</h3><p>Work comes in small slices, and each slice gets a fresh agent. Handoffs go through the repository, never through anyone's memory. When a context grows long, it stops, writes things down and passes the work on.</p></li>
-      <li><h3>Errors are an interface.</h3><p>A failure prints one line that says what was refused, why, and what to do next. Every code has a page, and none of them is an errno dump.</p></li>
-      <li><h3>Read everything you run.</h3><p>We use the standard library and nothing else, without third-party dependencies, and we write our own TLS. Code we can read whole is code we can review.</p></li>
-      <li><h3>Cut scope, keep the demo.</h3><p>When time runs short, a feature leaves the milestone and the demo stays. The cut is written down where the demo is.</p></li>
-    </ol>
-    <p class="coda"><strong>The test of every article:</strong> could a stranger, given only the repository, find out what was decided, check that it works, and carry on the work tomorrow?</p>
+      <p>Writing code has become cheap. Trusting it has not. Our manifesto is the short set of rules for how we spend the difference: agents write and people decide, a claim is a recorded run, review is by strangers.</p></div>
+    <div class="ref"><a href="https://age-of-the-agent.com/"><b>Read the manifesto →</b><span>age-of-the-agent.com</span></a></div>
   </section>
 
   <section id="reference">
