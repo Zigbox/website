@@ -1,0 +1,82 @@
+name: Deploy zigbox.org
+# Builds the whole of zigbox.org and deploys it to a Cloudflare Worker with static assets
+# (wrangler.jsonc). GitHub Pages no longer serves the domain.
+#
+# Needs two repository secrets: CLOUDFLARE_API_TOKEN (Account: Workers Scripts Edit; Zone
+# zigbox.org: Workers Routes Edit and DNS Edit) and CLOUDFLARE_ACCOUNT_ID.
+#
+# Layout:
+#   /                 src/ in this repo
+#   /errors/box/      Zigbox's generated error pages (site/errors on Zigbox's main)
+#   /errors/cube/     Zigcube's generated error pages (site/errors on Zigcube's main)
+#   /zigbox/          Zigbox's project site (site/ on Zigbox's main)
+#   /zigcube/         Zigcube's project site (site/ on Zigcube's main)
+# A pull request assembles the site and checks the Worker config; only main deploys.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [site]
+  schedule:
+    - cron: "17 */6 * * *"
+permissions:
+  contents: read
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: self
+      - uses: actions/checkout@v4
+        with:
+          repository: Zigbox/zigbox
+          ref: main
+          path: box
+          sparse-checkout: site
+      - uses: actions/checkout@v4
+        with:
+          repository: Zigbox/zigcube
+          ref: main
+          path: cube
+          sparse-checkout: site
+      - name: Assemble the site
+        run: |
+          set -eu
+          out=self/_site
+          mkdir -p "$out/errors/box" "$out/errors/cube" "$out/zigbox" "$out/zigcube"
+          cp -R self/src/. "$out/"
+          cp box/site/errors/*.html "$out/errors/box/"
+          cp cube/site/errors/*.html "$out/errors/cube/"
+          cp -R box/site/. "$out/zigbox/"
+          cp -R cube/site/. "$out/zigcube/"
+          find "$out" -name '.*' -type f -delete
+          echo "box:  $(ls "$out/errors/box" | wc -l) error pages and the project site, Zigbox $(git -C box rev-parse --short HEAD)"
+          echo "cube: $(ls "$out/errors/cube" | wc -l) error pages and the project site, Zigcube $(git -C cube rev-parse --short HEAD)"
+          for f in index.html errors/index.html errors/box/E0101.html errors/cube/E0101.html \
+            zigbox/index.html zigcube/index.html zigcube/architecture.html; do
+            test -s "$out/$f" || { echo "not deployed: $f is missing from the assembled site"; exit 1; }
+          done
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check the Worker config
+        working-directory: self
+        run: npx --yes wrangler@4.151.3 deploy --dry-run
+      - name: Deploy
+        if: github.event_name != 'pull_request'
+        working-directory: self
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "not deployed: the CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID secrets are not set"
+            exit 1
+          fi
+          npx --yes wrangler@4.151.3 deploy
