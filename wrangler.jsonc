@@ -1,0 +1,13 @@
+// zigbox.org as a Cloudflare Worker with static assets only: no script runs.
+// .github/workflows/deploy.yml assembles _site/ and runs `wrangler deploy` from the repository root.
+{
+  "name": "zigbox-org",
+  "compatibility_date": "2026-10-20",
+  "workers_dev": false,
+  "assets": {
+    "directory": "./_site",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "none"
+  },
+  "routes": [{ "pattern": "zigbox.org", "custom_domain": true }]
+}
