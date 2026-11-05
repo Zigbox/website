@@ -74,7 +74,39 @@ section{padding-block:48px;border-top:1px solid var(--line)}
 .ref a span{color:var(--muted);font-size:.9rem}
 footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);font-size:.85rem}
 footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-@media (max-width:820px){.projects,@media (max-width:520px){nav{margin-left:0;width:100%}}
+/* The manifesto card: the manifesto's own palette (neutral ink, red accent) inside this page's system. */
+.mf{--m:#b3362b;--m-soft:#f6dfdb;--m-ink:#19181b;--m-fg:#e8e6e3;--m-dim:#8f8c93;--m-hi:#ff8a7a;
+  display:grid;grid-template-columns:1.15fr 1fr;border:1px solid var(--line);border-top:4px solid var(--m);border-radius:10px;overflow:hidden;background:var(--surface);color:var(--fg);text-decoration:none;transition:border-color .15s,box-shadow .15s,transform .15s}
+.mf>*{min-width:0}
+.mf-main{padding:26px 28px;display:flex;flex-direction:column;gap:14px}
+.mf-top{display:flex;align-items:center;gap:10px}
+.mf-mark{width:22px;height:22px;position:relative;flex:none}
+.mf-mark::before,.mf-mark::after{content:"";position:absolute;inset:3px;border:2px solid var(--m);border-radius:2px}
+.mf-mark::after{transform:rotate(45deg)}
+.mf-top .eyebrow{color:var(--m)}
+.mf h3{font-size:clamp(1.6rem,4vw,2.1rem);letter-spacing:-.01em}
+.mf-quotes{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+.mf-quotes li{border-left:3px solid var(--m);padding-left:14px;color:var(--muted);font-size:.98rem}
+.mf-quotes q{quotes:"\201C" "\201D"}
+.mf-foot{margin-top:auto;padding-top:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.mf-domain{font-family:var(--mono);font-size:.85rem;color:var(--muted)}
+.mf-go{font-weight:600;font-size:.95rem;color:#fff;background:var(--m);border-radius:6px;padding:9px 16px;transition:background .15s}
+.mf-go b{display:inline-block;font-weight:600;transition:transform .15s}
+.mf-lead{background:var(--m-ink);color:var(--m-fg);padding:28px;display:flex;flex-direction:column;justify-content:center;gap:16px;border-left:1px solid var(--line)}
+.mf-lead .tag{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--m-hi)}
+.mf-lead p{font-family:var(--display);font-size:clamp(1.3rem,2.6vw,1.75rem);line-height:1.28;margin:0;text-wrap:balance}
+.mf-lead p em{font-style:normal;color:var(--m-hi)}
+.mf:hover{border-color:var(--m);box-shadow:0 6px 24px -10px var(--m);transform:translateY(-2px)}
+.mf:hover .mf-go b{transform:translateX(4px)}
+.mf:focus-visible{outline:3px solid var(--m);outline-offset:3px}
+.mf:focus-visible .mf-go{text-decoration:underline}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .mf{--m:#ff8a7a;--m-ink:#0b0b0d}
+  :root:not([data-theme="light"]) .mf-go{color:#17171a}}
+:root[data-theme="dark"] .mf{--m:#ff8a7a;--m-ink:#0b0b0d}
+:root[data-theme="dark"] .mf-go{color:#17171a}
+@media (prefers-reduced-motion:reduce){.mf,.mf-go b{transition:none}.mf:hover{transform:none}.mf:hover .mf-go b{transform:none}}
+@media (max-width:820px){.projects,.ref,.mf{grid-template-columns:1fr}.mf-lead{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:520px){nav{margin-left:0;width:100%}.mf-main,.mf-lead{padding:22px 18px}.mf-foot{flex-direction:column;align-items:stretch}.mf-go{text-align:center}.mf-domain{text-align:center}}
 </style>
 </head>
 <body>
@@ -114,7 +146,21 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
   <section id="manifesto">
     <div class="sec-head"><p class="eyebrow">How we work</p><h2>The Age of the Agent manifesto</h2>
       <p>Writing code has become cheap. Trusting it has not. Our manifesto is the short set of rules for how we spend the difference: agents write and people decide, a claim is a recorded run, review is by strangers.</p></div>
-    <div class="ref"><a href="https://age-of-the-agent.com/"><b>Read the manifesto →</b><span>age-of-the-agent.com</span></a></div>
+    <a class="mf" href="https://age-of-the-agent.com/">
+      <div class="mf-main">
+        <div class="mf-top"><span class="mf-mark" aria-hidden="true"></span><p class="eyebrow">A software manifesto</p></div>
+        <h3>The Age of the Agent</h3>
+        <ul class="mf-quotes">
+          <li><q>Safety has to live in the substrate.</q></li>
+          <li><q>Composing safe components never silently produces an unsafe system.</q></li>
+        </ul>
+        <div class="mf-foot"><span class="mf-domain">age-of-the-agent.com</span><span class="mf-go">Read the manifesto <b aria-hidden="true">→</b></span></div>
+      </div>
+      <div class="mf-lead">
+        <span class="tag">The opening line</span>
+        <p>We are greeting the age of the agent by handing agents <em>tools built for humans.</em></p>
+      </div>
+    </a>
   </section>
 
   <section id="reference">
