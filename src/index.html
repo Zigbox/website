@@ -72,6 +72,11 @@ section{padding-block:48px;border-top:1px solid var(--line)}
 .ref a{border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:var(--surface);text-decoration:none;color:var(--fg);display:flex;flex-direction:column;gap:4px;min-width:0}
 .ref a:hover{border-color:var(--muted)}
 .ref a span{color:var(--muted);font-size:.9rem}
+.try{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.try .card h3{font-size:1.3rem}
+.beta{display:inline-flex;align-items:center;gap:8px;margin-top:12px;font-family:var(--mono);font-size:.78rem;letter-spacing:.04em;text-decoration:none;color:var(--box);background:var(--box-soft);border:1px solid var(--box);border-radius:999px;padding:4px 12px;white-space:nowrap}
+.beta b{font-weight:500;text-transform:uppercase;letter-spacing:.08em}
+.beta:hover{text-decoration:underline}
 footer{border-top:1px solid var(--line);padding-block:28px;color:var(--muted);font-size:.85rem}
 footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 /* The manifesto card: the manifesto's own palette (neutral ink, red accent) inside this page's system. */
@@ -105,14 +110,14 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 :root[data-theme="dark"] .mf{--m:#ff8a7a;--m-ink:#0b0b0d}
 :root[data-theme="dark"] .mf-go{color:#17171a}
 @media (prefers-reduced-motion:reduce){.mf,.mf-go b{transition:none}.mf:hover{transform:none}.mf:hover .mf-go b{transform:none}}
-@media (max-width:820px){.projects,.ref,.mf{grid-template-columns:1fr}.mf-lead{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:820px){.projects,.ref,.try,.mf{grid-template-columns:1fr}.mf-lead{border-left:0;border-top:1px solid var(--line)}}
 @media (max-width:520px){nav{margin-left:0;width:100%}.mf-main,.mf-lead{padding:22px 18px}.mf-foot{flex-direction:column;align-items:stretch}.mf-go{text-align:center}.mf-domain{text-align:center}}
 </style>
 </head>
 <body>
 <header class="top"><div class="wrap">
   <a class="brand" href="/"><span class="marks" aria-hidden="true"><span class="mark"></span><span class="mark cube"></span></span>Zigbox</a>
-  <nav aria-label="Sections"><a href="#projects">Projects</a><a href="https://age-of-the-agent.com/">Manifesto</a><a href="/errors/">Error codes</a><a href="https://github.com/Zigbox">GitHub</a></nav>
+  <nav aria-label="Sections"><a href="#try">Try Zigbox</a><a href="#projects">Projects</a><a href="https://age-of-the-agent.com/">Manifesto</a><a href="/errors/">Error codes</a><a href="https://github.com/Zigbox">GitHub</a></nav>
 </div></header>
 
 <main class="wrap">
@@ -122,9 +127,40 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
     <p class="lede">Agents write the code here and people decide what it is for. We work by a short <a href="https://age-of-the-agent.com/">manifesto</a> of rules that make that combination produce software you can trust.</p>
   </div>
 
+  <section id="try">
+    <div class="sec-head"><p class="eyebrow">Try Zigbox</p><h2>A container running in five minutes</h2>
+      <p>One signed binary, no daemon, no root. Pick where you want to run it; each guide checks your setup first and says what to do when something is missing.</p>
+      <a class="beta" href="https://github.com/Zigbox/zigbox/blob/main/docs/guide/known-limits.md"><b>Public beta</b> known limits →</a></div>
+    <div class="try">
+      <article class="card">
+        <h3>Mac</h3><div class="what">Apple Silicon · Homebrew</div>
+        <p>Containers run in a small Linux machine that starts and stops by itself.</p>
+        <div class="cmd"><span class="p">$</span> brew install zigbox/tap/zigbox
+<span class="p">$</span> zbx pull alpine:3.20
+<span class="p">$</span> zbx run alpine:3.20 -- echo hello</div>
+        <div class="links"><a class="main" href="https://github.com/Zigbox/zigbox/blob/main/docs/guide/try-mac.md">Try on a Mac →</a></div>
+      </article>
+      <article class="card">
+        <h3>Linux</h3><div class="what">x86_64 · arm64 · apt and dnf</div>
+        <p>Add our signed repository, install, and let <code>zbx doctor</code> check the host.</p>
+        <div class="cmd"><span class="d"># after adding the repository</span>
+<span class="p">$</span> sudo apt install zigbox
+<span class="p">$</span> zbx doctor</div>
+        <div class="links"><a class="main" href="https://github.com/Zigbox/zigbox/blob/main/docs/guide/try-linux.md">Try on Linux →</a></div>
+      </article>
+      <article class="card">
+        <h3>Claude Code</h3><div class="what">cloud sessions · agents</div>
+        <p>Containers inside a cloud session, where Docker's daemon does not run, driven by JSON output and coded errors.</p>
+        <div class="cmd"><span class="p">#</span> apt-get install -y zigbox
+<span class="p">$</span> zbx --output json doctor</div>
+        <div class="links"><a class="main" href="https://github.com/Zigbox/zigbox/blob/main/docs/guide/try-claude-code.md">Try in Claude Code →</a></div>
+      </article>
+    </div>
+  </section>
+
   <section id="projects">
     <div class="sec-head"><p class="eyebrow">Projects</p><h2>A box, and a cube to put boxes in</h2>
-      <p>Two projects, both written in Zig with nothing but its standard library, both pre-alpha, and both developed in the open.</p></div>
+      <p>Two projects, both written in Zig with nothing but its standard library, and both developed in the open. Zigbox is in public beta; Zigcube is pre-alpha.</p></div>
     <div class="projects">
       <article class="card">
         <div class="head"><span class="mark" aria-hidden="true"></span><div><h3>Zigbox</h3><div class="what">container runtime · image store · builder</div></div></div>
@@ -174,7 +210,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 </main>
 
 <footer><div class="wrap">
-  <span>Zigbox · pre-alpha · open source</span>
+  <span>Zigbox · public beta · open source</span>
   <span>zigbox.org</span>
 </div></footer>
 </body>
