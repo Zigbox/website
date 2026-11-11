@@ -11,7 +11,11 @@ name: Deploy zigbox.org
 #   /errors/cube/     Zigcube's generated error pages (site/errors on Zigcube's main)
 #   /zigbox/          Zigbox's project site (site/ on Zigbox's main)
 #   /zigcube/         Zigcube's project site (site/ on Zigcube's main)
-# A pull request assembles the site and checks the Worker config; only main deploys.
+#   /apt/, /rpm/      the owner-signed apt and dnf repositories, with
+#   /zigbox-archive-keyring.gpg and .asc: the zigbox-repos.tar.gz asset of the newest Zigbox
+#                     release that has one, copied byte for byte (never built or signed here)
+# A pull request assembles the site and checks the Worker config; only main deploys, and then
+# checks that zigbox.org serves every repository file with status 200 and the asset's bytes.
 on:
   push:
     branches: [main]
@@ -45,6 +49,52 @@ jobs:
           ref: main
           path: cube
           sparse-checkout: site
+      - name: Fetch the signed package repositories
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ASSET: zigbox-repos.tar.gz
+        run: |
+          set -eu
+          mkdir -p pkg
+          tag=""
+          for t in $(gh release list --repo Zigbox/zigbox --exclude-drafts --exclude-pre-releases \
+            --limit 30 --json tagName --jq '.[].tagName'); do
+            if gh release view "$t" --repo Zigbox/zigbox --json assets --jq '.assets[].name' \
+              | grep -qxF "$ASSET"; then tag=$t; break; fi
+          done
+          if [ -z "$tag" ]; then
+            echo "packages: no Zigbox release carries $ASSET yet, so /apt and /rpm are not deployed"
+            exit 0
+          fi
+          gh release download "$tag" --repo Zigbox/zigbox --pattern "$ASSET" --dir pkg
+          # Only regular files and directories under apt/ and rpm/, and the two keyring files.
+          # No dot files (the assembly deletes them), no .html (the Worker's auto-trailing-slash
+          # would redirect it), never the test key or the to-sign list.
+          tar -tvzf "pkg/$ASSET" | awk '{ print substr($1, 1, 1) }' | sort -u > pkg/kinds
+          if grep -qvx -e - -e d pkg/kinds; then
+            echo "packages: $ASSET from $tag holds something other than files and directories"
+            exit 1
+          fi
+          tar -tzf "pkg/$ASSET" | sed 's|^\./||' | grep -v '^$' > pkg/list
+          ok='^(apt/|rpm/|zigbox-archive-keyring\.(gpg|asc)$)'
+          if grep -vE "$ok" pkg/list || grep -E '(^|/)\.|\.html?$|to-sign|zigbox-test-key' pkg/list
+          then
+            echo "packages: $ASSET from $tag holds the paths above, which zigbox.org must not serve"
+            exit 1
+          fi
+          mkdir pkg/tree
+          tar -xzf "pkg/$ASSET" -C pkg/tree --no-same-owner --no-same-permissions
+          for f in apt/dists/stable/Release apt/dists/stable/InRelease apt/dists/stable/Release.gpg \
+            rpm/x86_64/repodata/repomd.xml rpm/x86_64/repodata/repomd.xml.asc \
+            rpm/aarch64/repodata/repomd.xml rpm/aarch64/repodata/repomd.xml.asc \
+            zigbox-archive-keyring.gpg zigbox-archive-keyring.asc; do
+            test -s "pkg/tree/$f" || { echo "packages: $f is missing from $ASSET of $tag"; exit 1; }
+          done
+          # Workers static assets refuse a file over 25 MiB.
+          big=$(find pkg/tree -type f -size +25M)
+          if [ -n "$big" ]; then echo "packages: over 25 MiB, which the Worker cannot serve: $big"; exit 1; fi
+          (cd pkg/tree && find . -type f | sed 's|^\./||' | sort | xargs sha256sum) > pkg/manifest
+          echo "packages: $(wc -l < pkg/manifest) files from $ASSET of Zigbox $tag"
       - name: Assemble the site
         run: |
           set -eu
@@ -56,6 +106,12 @@ jobs:
           cp -R box/site/. "$out/zigbox/"
           cp -R cube/site/. "$out/zigcube/"
           find "$out" -name '.*' -type f -delete
+          if [ -d pkg/tree ]; then
+            for p in apt rpm zigbox-archive-keyring.gpg zigbox-archive-keyring.asc; do
+              test ! -e "$out/$p" || { echo "not deployed: $p exists in src/ and in the packages"; exit 1; }
+            done
+            cp -R pkg/tree/. "$out/"
+          fi
           echo "box:  $(ls "$out/errors/box" | wc -l) error pages and the project site, Zigbox $(git -C box rev-parse --short HEAD)"
           echo "cube: $(ls "$out/errors/cube" | wc -l) error pages and the project site, Zigcube $(git -C cube rev-parse --short HEAD)"
           for f in index.html errors/index.html errors/box/E0101.html errors/cube/E0101.html \
@@ -80,3 +136,29 @@ jobs:
             exit 1
           fi
           npx --yes wrangler@4.151.3 deploy
+      - name: Check zigbox.org serves the package repositories unchanged
+        if: github.event_name != 'pull_request'
+        run: |
+          set -eu
+          if [ ! -f pkg/manifest ]; then echo "packages: none deployed, nothing to check"; exit 0; fi
+          # No redirect followed and no decoding: a 3xx, a rewrite or a Content-Encoding the
+          # asset did not have all show as a status or digest mismatch. The edge may serve the
+          # previous release's Release or InRelease for a short while, so retry before failing.
+          for attempt in 1 2 3 4 5 6; do
+            bad=0
+            while read -r sum path; do
+              code=$(curl -sS -o pkg/got -w '%{http_code}' "https://zigbox.org/$path" || echo 000)
+              got=$(sha256sum pkg/got | cut -d' ' -f1)
+              if [ "$code" != 200 ] || [ "$got" != "$sum" ]; then
+                echo "packages: /$path served $code, sha256 $got; the asset has $sum"
+                bad=1
+              fi
+            done < pkg/manifest
+            if [ "$bad" = 0 ]; then
+              echo "packages: zigbox.org serves all $(wc -l < pkg/manifest) files unchanged"
+              exit 0
+            fi
+            sleep 20
+          done
+          echo "packages: zigbox.org does not serve the repositories as signed"
+          exit 1
