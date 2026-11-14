@@ -62,6 +62,7 @@ section{padding-block:48px;border-top:1px solid var(--line)}
 .card p{margin:0;color:var(--muted)}
 .card .cmd{background:var(--term);color:var(--term-fg);font:13px/1.5 var(--mono);border-radius:8px;padding:10px 14px;overflow-x:auto;white-space:pre;margin:4px 0}
 .card .cmd .p{color:var(--c)} .card .cmd .d{color:var(--term-dim)}
+.card .cmd{position:relative;z-index:1}
 .card .links{display:flex;gap:16px;flex-wrap:wrap;margin-top:auto;padding-top:6px;font-size:.92rem}
 .card .links a{color:var(--c)}
 .card a.main{font-weight:600;text-decoration:none}
@@ -137,22 +138,28 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
         <p>Containers run in a small Linux machine that starts and stops by itself.</p>
         <div class="cmd"><span class="p">$</span> brew install zigbox/tap/zigbox
 <span class="p">$</span> zbx pull alpine:3.20
-<span class="p">$</span> zbx run alpine:3.20 -- echo hello</div>
+<span class="p">$</span> zbx run alpine:3.20 -- echo hi</div>
         <div class="links"><a class="main" href="https://github.com/Zigbox/zigbox/blob/main/docs/guide/try-mac.md">Try on a Mac →</a></div>
       </article>
       <article class="card">
         <h3>Linux</h3><div class="what">x86_64 · arm64 · apt and dnf</div>
         <p>Add our signed repository, install, and let <code>zbx doctor</code> check the host.</p>
         <div class="cmd"><span class="d"># after adding the repository</span>
+<span class="d"># Debian, Ubuntu:</span>
 <span class="p">$</span> sudo apt install zigbox
+<span class="d"># Fedora, Rocky:</span>
+<span class="p">$</span> sudo dnf install zigbox
 <span class="p">$</span> zbx doctor</div>
         <div class="links"><a class="main" href="https://github.com/Zigbox/zigbox/blob/main/docs/guide/try-linux.md">Try on Linux →</a></div>
       </article>
       <article class="card">
         <h3>Claude Code</h3><div class="what">cloud sessions · agents</div>
-        <p>Containers inside a cloud session, where Docker's daemon does not run, driven by JSON output and coded errors.</p>
-        <div class="cmd"><span class="p">#</span> apt-get install -y zigbox
-<span class="p">$</span> zbx --output json doctor</div>
+        <p>Containers inside a cloud session, where Docker's daemon does not run, driven by JSON output and coded errors. Add our apt repository first; the guide's setup block does it.</p>
+        <div class="cmd"><span class="d"># root, after adding the repo</span>
+<span class="p">#</span> apt-get install -y \
+    zigbox uidmap passt
+<span class="p">#</span> zbx --output json \
+    explain E0103</div>
         <div class="links"><a class="main" href="https://github.com/Zigbox/zigbox/blob/main/docs/guide/try-claude-code.md">Try in Claude Code →</a></div>
       </article>
     </div>
